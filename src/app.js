@@ -1,3 +1,4 @@
+const NUM_TRIALS = 10;
 const suits = ["C", "D", "H", "S"];
 const ranks = [
   "A",
@@ -13,6 +14,71 @@ const ranks = [
   "4",
   "3",
   "2",
+];
+
+// test cases
+const onePairHand = [
+  { rank: 4, suit: 3 },
+  { rank: 4, suit: 2 },
+  { rank: 6, suit: 3 },
+  { rank: 7, suit: 2 },
+  { rank: 10, suit: 0 },
+];
+
+const twoPairHand = [
+  { rank: 3, suit: 2 },
+  { rank: 3, suit: 3 },
+  { rank: 11, suit: 0 },
+  { rank: 11, suit: 3 },
+  { rank: 12, suit: 2 },
+];
+
+const threeOfAKindHand = [
+  { rank: 2, suit: 0 },
+  { rank: 2, suit: 3 },
+  { rank: 2, suit: 2 },
+  { rank: 5, suit: 2 },
+  { rank: 12, suit: 3 },
+];
+
+const fourOfAKindHand = [
+  { rank: 2, suit: 1 },
+  { rank: 5, suit: 0 },
+  { rank: 5, suit: 1 },
+  { rank: 5, suit: 3 },
+  { rank: 5, suit: 2 },
+];
+
+const fullHouseHand = [
+  { rank: 1, suit: 0 },
+  { rank: 1, suit: 2 },
+  { rank: 8, suit: 3 },
+  { rank: 8, suit: 2 },
+  { rank: 8, suit: 1 },
+];
+
+const flushHand = [
+  { rank: 3, suit: 1 },
+  { rank: 5, suit: 1 },
+  { rank: 6, suit: 1 },
+  { rank: 10, suit: 1 },
+  { rank: 11, suit: 1 },
+];
+
+const straightHand = [
+  { rank: 4, suit: 1 },
+  { rank: 5, suit: 3 },
+  { rank: 6, suit: 2 },
+  { rank: 7, suit: 1 },
+  { rank: 8, suit: 0 },
+];
+
+const straightFlushHand = [
+  { rank: 3, suit: 0 },
+  { rank: 4, suit: 0 },
+  { rank: 5, suit: 0 },
+  { rank: 6, suit: 0 },
+  { rank: 7, suit: 0 },
 ];
 
 function generateCard() {
@@ -31,6 +97,72 @@ function generateHand() {
   }
 
   return hand.sort((a, b) => a.rank - b.rank);
+}
+
+function isOnePair(hand) {
+  if (
+    hand[0].rank === hand[1].rank &&
+    hand[1].rank !== hand[2].rank &&
+    hand[2].rank !== hand[3].rank &&
+    hand[3].rank !== hand[4].rank
+  ) {
+    return true;
+  }
+  if (
+    hand[0].rank !== hand[1].rank &&
+    hand[1].rank === hand[2].rank &&
+    hand[2].rank !== hand[3].rank &&
+    hand[3].rank !== hand[4].rank
+  ) {
+    return true;
+  }
+  if (
+    hand[0].rank !== hand[1].rank &&
+    hand[1].rank !== hand[2].rank &&
+    hand[2].rank === hand[3].rank &&
+    hand[3].rank !== hand[4].rank
+  ) {
+    return true;
+  }
+  if (
+    hand[0].rank !== hand[1].rank &&
+    hand[1].rank !== hand[2].rank &&
+    hand[2].rank !== hand[3].rank &&
+    hand[3].rank === hand[4].rank
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isTwoPair(hand) {
+  if (
+    hand[0].rank === hand[1].rank &&
+    hand[1].rank !== hand[2].rank &&
+    hand[2].rank === hand[3].rank &&
+    hand[3].rank !== hand[4].rank
+  ) {
+    return true;
+  }
+
+  if (
+    hand[0].rank === hand[1].rank &&
+    hand[1].rank !== hand[2].rank &&
+    hand[2].rank !== hand[3].rank &&
+    hand[3].rank === hand[4].rank
+  ) {
+    return true;
+  }
+
+  if (
+    hand[0].rank !== hand[1].rank &&
+    hand[1].rank === hand[2].rank &&
+    hand[2].rank !== hand[3].rank &&
+    hand[3].rank === hand[4].rank
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function isThreeOfAKind(hand) {
@@ -130,54 +262,41 @@ function isStraight(hand) {
 function isStraightFlush(hand) {
   return isFlush(hand) && isStraight(hand);
 }
-console.log(isStraightFlush(straightFlushHand));
 
-// test cases
+function checkType(hand) {
+  if (isOnePair(hand)) return "One pair";
+  if (isTwoPair(hand)) return "Two pair";
+  if (isThreeOfAKind(hand)) return "Three of a kind";
+  if (isFourOfAKind(hand)) return "Four of a kind";
+  if (isFullHouse(hand)) return "Full house";
+  if (isStraightFlush(hand)) return "Straight flush";
+  if (isFlush(hand)) return "Flush";
+  if (isStraight(hand)) return "Straight";
+  return "High card";
+}
 
-const threeOfAKindHand = [
-  { rank: 2, suit: 0 },
-  { rank: 2, suit: 3 },
-  { rank: 2, suit: 2 },
-  { rank: 5, suit: 2 },
-  { rank: 12, suit: 3 },
-];
+let typeCount = {
+  "High card": 0,
+  "One pair": 0,
+  "Two pair": 0,
+  "Three of a kind": 0,
+  "Four of a kind": 0,
+  "Full house": 0,
+  Flush: 0,
+  Straight: 0,
+  "Straight flush": 0,
+};
 
-const fourOfAKindHand = [
-  { rank: 2, suit: 1 },
-  { rank: 5, suit: 0 },
-  { rank: 5, suit: 1 },
-  { rank: 5, suit: 3 },
-  { rank: 5, suit: 2 },
-];
+function calculateProbability() {
+  const trials = [];
+  while (trials.length < NUM_TRIALS) {
+    trials.push(checkType(generateHand()));
+  }
+  trials.forEach((type) => typeCount[type]++);
 
-const fullHouseHand = [
-  { rank: 1, suit: 0 },
-  { rank: 1, suit: 2 },
-  { rank: 8, suit: 3 },
-  { rank: 8, suit: 2 },
-  { rank: 8, suit: 1 },
-];
+  Object.keys(typeCount).forEach((type) =>
+    console.log(type + ": " + (typeCount[type] / NUM_TRIALS).toFixed(1))
+  );
+}
 
-const flushHand = [
-  { rank: 3, suit: 1 },
-  { rank: 5, suit: 1 },
-  { rank: 6, suit: 1 },
-  { rank: 10, suit: 1 },
-  { rank: 11, suit: 1 },
-];
-
-const straightHand = [
-  { rank: 4, suit: 1 },
-  { rank: 5, suit: 3 },
-  { rank: 6, suit: 2 },
-  { rank: 7, suit: 1 },
-  { rank: 8, suit: 0 },
-];
-
-const straightFlushHand = [
-  { rank: 3, suit: 0 },
-  { rank: 4, suit: 0 },
-  { rank: 5, suit: 0 },
-  { rank: 6, suit: 0 },
-  { rank: 7, suit: 0 },
-];
+calculateProbability();
