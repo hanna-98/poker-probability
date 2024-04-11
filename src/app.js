@@ -1,21 +1,3 @@
-// high card / no pairs -> return high card / no pairs
-
-// if one pair eg [10S 10H 8S 7H 4C] -> length of groupedByRank should be 4
-
-// case for two pair eg [JH JS 3C 3S 2H] -> length of groupedByRank should be 3 && max size of it's elements should be 2
-
-// case for three of a kind eg [QC QS QH 9H 2S] -> length of groupedByRank should be 3 && max size of it's elements should be 3
-
-// case for four of a kind eg [5C 5D 5H 5S 2D] -> length of groupedByRank should be 2 && max size of it's elements should be 4
-
-// case for full house eg [6S 6H 6D KC KH] -> length of groupedByRank should be 2 && max size of it's elements should be 3
-
-// case for flush eg [JD 9D 8D 4D 3D] -> length of groupedBySuit should be 1
-
-// case for straight eg [10D 9S 8H 7D 6C] -> length of groupedByRank should be 5 && consecutive
-
-// straight flush eg [JC 10C 9C 8C 7C] -> conditions of straight && flush
-
 const suits = ["C", "D", "H", "S"];
 const ranks = [
   "A",
@@ -34,89 +16,168 @@ const ranks = [
 ];
 
 function generateCard() {
-  let randomSuit = suits[Math.floor(Math.random() * suits.length)];
-  let randomRank = ranks[Math.floor(Math.random() * ranks.length)];
-  return { rank: randomRank, suit: randomSuit };
+  let randomSuitIndex = Math.floor(Math.random() * suits.length);
+  let randomRankIndex = Math.floor(Math.random() * ranks.length);
+  return { rank: randomRankIndex, suit: randomSuitIndex };
 }
 
 function generateHand() {
-  const hand = [
-    generateCard(),
-    generateCard(),
-    generateCard(),
-    generateCard(),
-    generateCard(),
-  ];
-  return hand;
-}
-
-function isThreeOfAKind(ranks) {
-  return Object.keys(ranks).length === 3 &&
-    Object.values(ranks).find((element) => element.length === 3)
-    ? true
-    : false;
-}
-
-function isFourOfAKind(ranks) {
-  return Object.keys(ranks).length === 2 &&
-    Object.values(ranks).find((element) => element.length === 4)
-    ? true
-    : false;
-}
-
-function isFullHouse(ranks) {
-  // check for four of a kind first as this will be true for both full house and four of a kind
-  return Object.keys(ranks).length === 2;
-}
-
-function checkType(hand) {
-  const groupedByRank = Object.groupBy(hand, ({ rank }) => rank);
-
-  if (isFourOfAKind(groupedByRank)) {
-    return "Four of a kind";
-  } else if (isThreeOfAKind(groupedByRank)) {
-    return "Three of a kind";
-  } else if (isFullHouse(groupedByRank)) {
-    return "Full house";
+  const hand = [];
+  while (hand.length < 5) {
+    const card = generateCard();
+    if (!hand.includes(card)) {
+      hand.push(card);
+    }
   }
 
-  //   let groupedByRank = Object.groupBy(hand, ({ rank }) => rank);
-  //   let groupedBySuit = Object.groupBy(hand, ({ suit }) => suit);
-
-  //   console.log("suits: ", groupedBySuit);
-  //   console.log("ranks: ", groupedByRank);
-
-  //   console.log("ranks -> ", Object.keys(groupedByRank));
-  //   console.log("suits -> ", Object.keys(groupedBySuit));
+  return hand.sort((a, b) => a.rank - b.rank);
 }
 
+function isThreeOfAKind(hand) {
+  if (
+    hand[0].rank === hand[1].rank &&
+    hand[1].rank === hand[2].rank &&
+    hand[2].rank !== hand[3].rank &&
+    hand[3].rank !== hand[4].rank
+  ) {
+    return true;
+  }
+
+  if (
+    hand[0].rank !== hand[1].rank &&
+    hand[1].rank === hand[2].rank &&
+    hand[2].rank === hand[3].rank &&
+    hand[3].rank !== hand[4].rank
+  ) {
+    return true;
+  }
+
+  if (
+    hand[0].rank !== hand[1].rank &&
+    hand[1].rank !== hand[2].rank &&
+    hand[2].rank === hand[3].rank &&
+    hand[3].rank === hand[4].rank
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function isFourOfAKind(hand) {
+  if (
+    hand[0].rank === hand[1].rank &&
+    hand[1].rank === hand[2].rank &&
+    hand[2].rank === hand[3].rank
+  ) {
+    return true;
+  }
+
+  if (
+    hand[1].rank === hand[2].rank &&
+    hand[2].rank === hand[3].rank &&
+    hand[3].rank === hand[4].rank
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isFullHouse(hand) {
+  if (
+    hand[0].rank === hand[1].rank &&
+    hand[1].rank === hand[2].rank &&
+    hand[2].rank !== hand[3].rank &&
+    hand[3].rank === hand[4].rank
+  ) {
+    return true;
+  }
+  if (
+    hand[0].rank === hand[1].rank &&
+    hand[1].rank !== hand[2].rank &&
+    hand[2].rank === hand[3].rank &&
+    hand[3].rank === hand[4].rank
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isFlush(hand) {
+  if (
+    hand[0].suit === hand[1].suit &&
+    hand[1].suit === hand[2].suit &&
+    hand[2].suit === hand[3].suit &&
+    hand[3].suit === hand[4].suit
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isStraight(hand) {
+  if (
+    hand[0].rank === hand[1].rank - 1 &&
+    hand[1].rank === hand[2].rank - 1 &&
+    hand[2].rank === hand[3].rank - 1 &&
+    hand[3].rank === hand[4].rank - 1
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isStraightFlush(hand) {
+  return isFlush(hand) && isStraight(hand);
+}
+console.log(isStraightFlush(straightFlushHand));
+
+// test cases
+
 const threeOfAKindHand = [
-  { rank: "Q", suit: "C" },
-  { rank: "Q", suit: "S" },
-  { rank: "Q", suit: "H" },
-  { rank: "9", suit: "H" },
-  { rank: "2", suit: "S" },
+  { rank: 2, suit: 0 },
+  { rank: 2, suit: 3 },
+  { rank: 2, suit: 2 },
+  { rank: 5, suit: 2 },
+  { rank: 12, suit: 3 },
 ];
 
 const fourOfAKindHand = [
-  { rank: "5", suit: "C" },
-  { rank: "5", suit: "D" },
-  { rank: "5", suit: "H" },
-  { rank: "5", suit: "S" },
-  { rank: "2", suit: "D" },
+  { rank: 2, suit: 1 },
+  { rank: 5, suit: 0 },
+  { rank: 5, suit: 1 },
+  { rank: 5, suit: 3 },
+  { rank: 5, suit: 2 },
 ];
 
 const fullHouseHand = [
-  { rank: "6", suit: "S" },
-  { rank: "6", suit: "H" },
-  { rank: "6", suit: "D" },
-  { rank: "K", suit: "C" },
-  { rank: "K", suit: "H" },
+  { rank: 1, suit: 0 },
+  { rank: 1, suit: 2 },
+  { rank: 8, suit: 3 },
+  { rank: 8, suit: 2 },
+  { rank: 8, suit: 1 },
 ];
 
-const randomHand = generateHand();
+const flushHand = [
+  { rank: 3, suit: 1 },
+  { rank: 5, suit: 1 },
+  { rank: 6, suit: 1 },
+  { rank: 10, suit: 1 },
+  { rank: 11, suit: 1 },
+];
 
-// const groupedByRank = Object.groupBy(fullHouseHand, ({ rank }) => rank);
-// console.log(isFullHouse(groupedByRank));
+const straightHand = [
+  { rank: 4, suit: 1 },
+  { rank: 5, suit: 3 },
+  { rank: 6, suit: 2 },
+  { rank: 7, suit: 1 },
+  { rank: 8, suit: 0 },
+];
 
-console.log(checkType(threeOfAKindHand));
+const straightFlushHand = [
+  { rank: 3, suit: 0 },
+  { rank: 4, suit: 0 },
+  { rank: 5, suit: 0 },
+  { rank: 6, suit: 0 },
+  { rank: 7, suit: 0 },
+];
